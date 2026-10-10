@@ -1,0 +1,11 @@
+{
+  "fecha": "2026-10-09",
+  "actualizado": "Primera versión – esperando la primera revisión de precios",
+  "tipos": [
+    { "tipo": "Nacional", "ofertas": [] },
+    { "tipo": "Internacional", "ofertas": [] },
+    { "tipo": "Paquetes / All inclusive", "ofertas": [] },
+    { "tipo": "Escapadas", "ofertas": [] },
+    { "tipo": "Eventos deportivos", "ofertas": [] }
+  ]
+}

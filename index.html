@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Precios del día</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1d2330; --muted: #6b7280;
+    --accent: #0e7c86; --accent-soft: #e3f3f4; --border: #e5e7eb;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #12151b; --card: #1b2029; --text: #e8eaee; --muted: #9aa3b2;
+            --accent: #3cc2cc; --accent-soft: #173238; --border: #2a303b; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.45; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  header h1 { margin: 0 0 4px; font-size: 1.6rem; }
+  .meta { color: var(--muted); font-size: .9rem; margin: 0 0 20px; }
+  section { background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+            padding: 16px; margin-bottom: 14px; }
+  section h2 { margin: 0 0 10px; font-size: 1.1rem; color: var(--accent); }
+  .oferta { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;
+            border-top: 1px solid var(--border); }
+  .oferta:first-of-type { border-top: 0; }
+  .destino { font-weight: 600; }
+  .detalle { color: var(--muted); font-size: .85rem; }
+  .precio { white-space: nowrap; font-weight: 700; }
+  .vacio { color: var(--muted); font-style: italic; margin: 0; }
+  .copiar { background: var(--accent-soft); border-color: transparent; }
+  textarea { width: 100%; min-height: 160px; border: 1px solid var(--border); border-radius: 8px;
+             padding: 10px; font: inherit; background: var(--card); color: var(--text); }
+  button { margin-top: 8px; background: var(--accent); color: #fff; border: 0; border-radius: 8px;
+           padding: 10px 16px; font-weight: 600; cursor: pointer; }
+  .aviso { color: var(--muted); font-size: .8rem; text-align: center; margin-top: 24px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Precios del día</h1>
+    <p class="meta" id="meta">Cargando…</p>
+  </header>
+  <div id="tipos"></div>
+  <section class="copiar">
+    <h2>Texto listo para redes</h2>
+    <textarea id="texto" readonly></textarea>
+    <button id="btn">Copiar texto</button>
+  </section>
+  <p class="aviso">Precios sujetos a disponibilidad y cambios. Consultá antes de reservar.</p>
+</main>
+<script>
+fetch('resumen.json?' + Date.now()).then(r => r.json()).then(d => {
+  document.getElementById('meta').textContent = 'Fecha: ' + d.fecha + ' · ' + d.actualizado;
+  const cont = document.getElementById('tipos');
+  let texto = '✈️ Precios del día (' + d.fecha + ')\n\n';
+  d.tipos.forEach(t => {
+    const s = document.createElement('section');
+    const h = document.createElement('h2'); h.textContent = t.tipo; s.appendChild(h);
+    if (!t.ofertas.length) {
+      const p = document.createElement('p'); p.className = 'vacio';
+      p.textContent = 'Sin datos todavía.'; s.appendChild(p);
+    } else {
+      texto += '📍 ' + t.tipo + '\n';
+      t.ofertas.forEach(o => {
+        const row = document.createElement('div'); row.className = 'oferta';
+        const izq = document.createElement('div');
+        const dn = document.createElement('div'); dn.className = 'destino'; dn.textContent = o.destino;
+        const dt = document.createElement('div'); dt.className = 'detalle'; dt.textContent = o.detalle || '';
+        izq.append(dn, dt);
+        const pr = document.createElement('div'); pr.className = 'precio'; pr.textContent = 'Desde ' + o.precio;
+        row.append(izq, pr); s.appendChild(row);
+        texto += '• ' + o.destino + (o.detalle ? ' (' + o.detalle + ')' : '') + ': desde ' + o.precio + '\n';
+      });
+      texto += '\n';
+    }
+    cont.appendChild(s);
+  });
+  texto += '📩 Escribinos para reservar. Precios sujetos a disponibilidad.';
+  document.getElementById('texto').value = texto;
+}).catch(() => { document.getElementById('meta').textContent = 'No se pudo cargar el resumen.'; });
+document.getElementById('btn').onclick = () => {
+  const t = document.getElementById('texto'); t.select();
+  navigator.clipboard.writeText(t.value).then(() => { document.getElementById('btn').textContent = '¡Copiado!'; });
+};
+</script>
+</body>
+</html>
